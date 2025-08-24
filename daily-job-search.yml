@@ -1,0 +1,36 @@
+
+name: Daily Job Search
+
+on:
+  schedule:
+    # Runs at 05:00 UTC daily, which is 08:00 Asia/Riyadh (Saudi Arabia)
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+jobs:
+  job-search:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run job search script
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
+          # Optional tuning:
+          JOB_QUERY: ${{ vars.JOB_QUERY }}
+          JOB_REGIONS: ${{ vars.JOB_REGIONS }}
+          JOB_SITES: ${{ vars.JOB_SITES }}
+          RESULTS_LIMIT: ${{ vars.RESULTS_LIMIT }}
+          TIME_FILTER: ${{ vars.TIME_FILTER }}
+        run: python job_scraper.py
